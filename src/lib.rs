@@ -2,6 +2,9 @@
 
 pub use fallacy_alloc::AllocError;
 
+#[cfg(feature = "derive")]
+pub use fallacy_clone_derive::TryClone;
+
 /// Tries to clone, return an error instead of panic if allocation failed.
 pub trait TryClone: Sized {
     fn try_clone(&self) -> Result<Self, AllocError>;
@@ -36,13 +39,13 @@ macro_rules! impl_try_clone {
 
 impl_try_clone!(bool, u8, u16, u32, u64, i8, i16, i32, i64, usize, isize);
 
-impl<T> TryClone for &T {
-    #[inline]
+impl<T: ?Sized> TryClone for &T {
+    #[inline(always)]
     fn try_clone(&self) -> Result<Self, AllocError> {
         Ok(*self)
     }
 
-    #[inline]
+    #[inline(always)]
     fn try_clone_from(&mut self, source: &Self) -> Result<(), AllocError> {
         *self = *source;
         Ok(())
