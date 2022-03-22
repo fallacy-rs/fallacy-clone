@@ -1,7 +1,9 @@
 //! Fallible clone.
 
+#![cfg_attr(nightly, feature(allocator_api))]
+
 pub use fallacy_alloc::AllocError;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 #[cfg(feature = "derive")]
 pub use fallacy_clone_derive::TryClone;
@@ -97,5 +99,36 @@ impl<T: ?Sized> TryClone for Arc<T> {
     #[inline]
     fn try_clone(&self) -> Result<Self, AllocError> {
         Ok(self.clone())
+    }
+}
+
+impl<T: ?Sized> TryClone for Weak<T> {
+    #[inline]
+    fn try_clone(&self) -> Result<Self, AllocError> {
+        Ok(self.clone())
+    }
+}
+
+#[cfg(nightly)]
+mod nightly {
+    use crate::TryClone;
+    use fallacy_alloc::AllocError;
+    use std::alloc::{Allocator, Global, Layout};
+
+    impl TryClone for Global {
+        #[inline(always)]
+        fn try_clone(&self) -> Result<Self, AllocError> {
+            Ok(Global)
+        }
+    }
+
+    impl<T: TryClone, A: Allocator + TryClone> TryClone for Box<T, A> {
+        #[inline]
+        fn try_clone(&self) -> Result<Self, AllocError> {
+            let alloc = Box::allocator(self).try_clone()?;
+            let t = self.as_ref().try_clone()?;
+            let b = Box::try_new_in(t, alloc).map_err(|_| AllocError::new(Layout::new::<T>()))?;
+            Ok(b)
+        }
     }
 }
