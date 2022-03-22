@@ -10,7 +10,7 @@ description = "Derive macro crate for fallacy-clone."
 keywords = ["fallible", "clone", "try-clone"]
 repository = "https://github.com/fallacy-rs/fallacy-clone.git"
 homepage = "https://github.com/fallacy-rs/fallacy-clone"
-documentation = "https://docs.rs/fallacy-clone/"
+documentation = "https://docs.rs/fallacy-clone-derive/"
 
 [lib]
 proc-macro = true
