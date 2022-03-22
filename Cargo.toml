@@ -17,4 +17,4 @@ derive = ["fallacy-clone-derive"]
 
 [dependencies]
 fallacy-alloc = "0.1.0"
-fallacy-clone-derive = { path = "./fallacy-clone-derive", optional = true }
+fallacy-clone-derive = { path = "./fallacy-clone-derive", version = "0.1.0", optional = true }
